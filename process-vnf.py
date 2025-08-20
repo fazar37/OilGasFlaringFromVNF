@@ -1,0 +1,123 @@
+# Libraries for data processing
+from probability_theory import ProbClass
+from vnf_data_processing import VNF
+from ploter_functions import PloterClass
+
+def main():
+    # Initialization of classes
+    plc = PloterClass()
+    pbt = ProbClass()
+    vnf_obj = VNF(quickloading=False, bufferSizeVNF=750, bufferSizeGas=750, could_mask=False)
+    vnf_obj.savePreprocessed()
+    # vnf_obj_summary = vnf_obj.copy()
+    # vnf_obj_summary.control_data()
+    # vnf_obj_summary.filter_zeros_data()
+    # vnf_obj_summary.create_summary_tables(pbt=pbt)
+    vnf_obj.control_data()
+    print('Loading class objects finished.')
+    
+    # # The plot_all_facilities_for_comparison was run two times to create part1 and part2
+    # # plc.plot_all_facilities_for_comparison(vnf=vnf_obj, n_col=3, figbase=2.3)
+    # plc.plot_selected_facilities_for_comparison(vnf=vnf_obj, n_col=3, border=0.03)
+    # # Plot the annual Volume of Gas data to compare WB and VNF datasets
+    # plc.plot_compare_vnf_wb(vnf=vnf_obj)
+    # # Plot boxplot for distribution of
+    # plc.plot_compare_all(vnf=vnf_obj, pbt=pbt)
+    # print('global figures are created.')
+
+    # Filtering Data, Performing Statistical Analysis, Plotting Data and Outputs
+    startup_2016_1year     = vnf_obj.filter(name='StartupAfter2016_All_Operational_ns1', startUp=2016, onShore='All', imStatus='Operational', column_reorder=True, numStartUpRegular=1)
+    startup_2012_1year     = vnf_obj.filter(name='StartupAfter2012_All_Operational_ns1', startUp=2012, onShore='All', imStatus='Operational', column_reorder=True, numStartUpRegular=1)
+    only_regular_operation = vnf_obj.filter(name='OnlyRegularOperation', onShore='All', imStatus='Operational', column_reorder=False, onlyRegularOperation=True, numStartUpRegular=2)
+    only_reg_oper_w_Kiyan  = vnf_obj.filter(name='OnlyRegularOperationWithKiyanly', onShore='All', imStatus='Operational', column_reorder=False, onlyRegularOperation=True, numStartUpRegular=2, removeKiyanly=False)
+    only_reg_oper_o_Kiyan  = vnf_obj.filter(name='OnlyRegularOperationOnlyKiyanly', onShore='All', imStatus='Operational', column_reorder=False, onlyRegularOperation=True, numStartUpRegular=2, onlyKiyanly=True)
+    onshore                = vnf_obj.filter(name='OnShore', onShore='On', imStatus='Operational', column_reorder=False, onlyRegularOperation=False)
+    onshore_w_Kiyan        = vnf_obj.filter(name='OnShoreWithKiyanly', onShore='On', imStatus='Operational', column_reorder=False, onlyRegularOperation=False, removeKiyanly=False)
+    onshore_o_Kiyan        = vnf_obj.filter(name='OnShoreOnlyKiyanly', onShore='On', imStatus='Operational', column_reorder=False, onlyRegularOperation=False, onlyKiyanly=True)
+    offshore               = vnf_obj.filter(name='OffShore', onShore='Off', imStatus='Operational', column_reorder=False, onlyRegularOperation=False)
+    operational            = vnf_obj.filter(name='Operational', onShore='All', imStatus='Operational', column_reorder=False, onlyRegularOperation=False)
+    operational_w_Kiyan    = vnf_obj.filter(name='OperationalWithKiyanly', onShore='All', imStatus='Operational', column_reorder=False, onlyRegularOperation=False, removeKiyanly=False)
+    operational_o_Kiyan    = vnf_obj.filter(name='OperationalOnlyKiyanly', onShore='All', imStatus='Operational', column_reorder=False, onlyRegularOperation=False, onlyKiyanly=True)
+    inactive               = vnf_obj.filter(name='Inactive', onShore='All', imStatus='Inactive', column_reorder=False, onlyRegularOperation=False)
+    print('Filtering is finished.')
+    startup_2012_1year.saveFilter(startup=True)
+    startup_2016_1year.saveFilter(startup=True)
+    only_regular_operation.saveFilter(startup=False)
+    onshore.saveFilter(startup=False)
+    offshore.saveFilter(startup=False)
+    operational.saveFilter(startup=False)
+    inactive.saveFilter(startup=False)
+    only_reg_oper_w_Kiyan.saveFilter(startup=False)
+    only_reg_oper_o_Kiyan.saveFilter(startup=False)
+    onshore_w_Kiyan.saveFilter(startup=False)
+    onshore_o_Kiyan.saveFilter(startup=False)
+    operational_w_Kiyan.saveFilter(startup=False)
+    operational_o_Kiyan.saveFilter(startup=False)
+    print('Saving filtered data is finished.')
+
+    # # # Checking Pearson and Spearman correlations:
+    out1, out2, out3 = pbt.check_correlation(vnf=startup_2012_1year)
+    out1, out2, out3 = pbt.check_correlation(vnf=only_regular_operation, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=onshore, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=offshore, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=operational, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=inactive, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=only_reg_oper_w_Kiyan, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=only_reg_oper_o_Kiyan, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=onshore_w_Kiyan, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=onshore_o_Kiyan, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=operational_w_Kiyan, out1=out1, out2=out2, out3=out3)
+    out1, out2, out3 = pbt.check_correlation(vnf=operational_o_Kiyan, out1=out1, out2=out2, out3=out3)
+    print('GAS vs VNF')
+    print(out1)
+    print('CAP vs VNF')
+    print(out2)
+    print('GAS vs CAP')
+    print(out3)
+    out1.to_csv('./Results/Statics/Correlations_GAS_VNF.csv')
+    out2.to_csv('./Results/Statics/Correlations_CAP_VNF.csv')
+    out3.to_csv('./Results/Statics/Correlations_GAS_CAP.csv')
+
+    #  test: str = one of the 'ttest', 'ks_2samp', 'mannwhitneyu'
+    plc.plot_start_up_priod_box_plot(vnfs=[startup_2012_1year, startup_2012_1year, startup_2012_1year, startup_2012_1year], pbt=pbt, test='ttest', static_locs=[5, 220, 7])
+    plc.plot_start_up_priod_box_plot(vnfs=[startup_2016_1year, startup_2016_1year, startup_2016_1year, startup_2016_1year], pbt=pbt, test='ttest', static_locs=[5, 220, 7])
+    plc.plot_compare_two_scenarios([onshore, offshore], pbt=pbt, xticks=['Onshore', 'Offshore'], test='ttest')
+    plc.plot_compare_two_scenarios([operational, inactive], pbt=pbt, xticks=['Continues operating status', 'Interrupted status'], test='ttest')
+    plc.plot_compare_two_scenarios([onshore, onshore_w_Kiyan, onshore_o_Kiyan, offshore], pbt=pbt, xticks=['Onshore facilities excluding\nKiyanly LNG', 'Onshore facilities including\nKiyanly LNG', 'Kiyanly LNG', 'Offshore facilities'], test='ttest', twoLegend=False)
+    plc.plot_compare_two_scenarios([operational, operational_w_Kiyan, operational_o_Kiyan, inactive], pbt=pbt, xticks=['All regularly operating facilities\nexcluding Kiyanly LNG', 'All regularly operating facilities\nincluding Kiyanly LNG', 'Kiyanly LNG', 'Facilities with\nInterrupted status'], test='ttest', twoLegend=False)
+    plc.plot_compare_two_scenarios([only_regular_operation, only_reg_oper_w_Kiyan, only_reg_oper_o_Kiyan], pbt=pbt, xticks=['All facilities excluding\nKiyanly LNG', 'All facilities including\n Kiyanly LNG', 'Kiyanly LNG'], test='ttest', twoLegend=False)
+    plc.plot_compare_all(vnf=only_regular_operation, pbt=pbt, ylims_=[5, 300, 7])
+    plc.plot_compare_all(vnf=startup_2012_1year, pbt=pbt, ylims_=[5, 300, 7])
+    plc.plot_compare_all(vnf=onshore, pbt=pbt, ylims_=[5, 300, 7])
+    plc.plot_compare_all(vnf=offshore, pbt=pbt, ylims_=[5, 300, 7])
+    plc.plot_compare_all(vnf=operational, pbt=pbt, ylims_=[5, 300, 7])
+    print('creating figures for distribution are finished.')
+
+    pbt.create_static_table_startup(vnfs=[startup_2012_1year, startup_2012_1year, startup_2012_1year, startup_2012_1year], test='ttest')
+    pbt.create_static_table_startup(vnfs=[startup_2016_1year, startup_2016_1year, startup_2016_1year, startup_2016_1year], test='ttest')
+    pbt.create_static_table(vnf=only_regular_operation)
+    pbt.create_static_table(vnf=onshore)
+    pbt.create_static_table(vnf=offshore)
+    pbt.create_static_table(vnf=operational)
+    pbt.create_static_table(vnf=inactive)
+    pbt.create_static_table(vnf=only_reg_oper_w_Kiyan)
+    pbt.create_static_table(vnf=only_reg_oper_o_Kiyan)
+    pbt.create_static_table(vnf=onshore_w_Kiyan)
+    pbt.create_static_table(vnf=onshore_o_Kiyan)
+    pbt.create_static_table(vnf=operational_w_Kiyan)
+    pbt.create_static_table(vnf=operational_o_Kiyan)
+    print('creating statics table are finished.')
+    
+
+    # Plot QQ plots and merge GOF tables for the paper
+    plc.check_different_distribution_start(vnf=startup_2012_1year, n_s=2, pbt=pbt, scen_name='during the start-up period')
+    plc.check_different_distribution_start(vnf=only_regular_operation, startUp=False, pbt=pbt, scen_name='during the regular operation period', title_d=['D)', 'E)', 'F)'])
+    df_start_up = plc.plot_qq_figure_paper(vnf=startup_2012_1year, pbt=pbt, startUp=True, prob_fun='LOG')
+    df_regular  = plc.plot_qq_figure_paper(vnf=only_regular_operation, pbt=pbt, startUp=False, prob_fun='LOG')
+    pbt.merge_GOF(snames=[df_start_up, df_regular])
+    pbt.create_scenario_table([startup_2012_1year, only_regular_operation], prob_fun='LOG')
+    pbt.create_scenario_table([startup_2012_1year, only_regular_operation, only_reg_oper_w_Kiyan, only_reg_oper_o_Kiyan], labels=['Start-up', 'Regular Operation', 'Regular Operation with Kiyanly', 'Only Kianly'], prob_fun='LOG')
+    print('QQplots are made.')
+
+if __name__ == '__main__':
+    main()
